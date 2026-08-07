@@ -1,10 +1,13 @@
 package com.test.selenium;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+
 import javax.imageio.ImageIO; 
 import org.openqa.selenium.*; 
 import org.openqa.selenium.chrome.ChromeDriver; 
 
-public class NewTest { 
+public class Hero { 
 	public static void main(String[] args) throws Exception { 
 		WebDriver driver = new ChromeDriver(); 
 		try { 
