@@ -59,6 +59,8 @@
     const repo = "stmcpy";
     
     const container = document.getElementById("fileList");
+    const hr = document.createElement("hr");
+    const br = document.createElement("br");
     
     async function getFiles(sub) {
         const response = await fetch(
@@ -75,7 +77,9 @@
     async function init() {
         const filesStm = await getFiles("STM");
         filesStm.forEach(createRow);        
-        container.appendChild(document.createElement("br"));
+        // container.appendChild(br);
+        container.appendChild(hr);
+        // container.appendChild(br);
         const filesSdc = await getFiles("SDC");
         filesSdc.forEach(createRow);        
     }
