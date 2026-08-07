@@ -55,11 +55,12 @@
 <div id="fileList"></div>
 
 <script>
-
     const owner = "Rithvik-986";
     const repo = "stmcpy";
     
-    async function getFiles() {
+    const container = document.getElementById("fileList");
+    
+    async function getFiles(sub) {
         const response = await fetch(
             `https://api.github.com/repos/${owner}/${repo}/contents/`
         );
@@ -67,16 +68,18 @@
         const data = await response.json();
     
         return data
-            .filter(file => file.type === "file" && file.name.endsWith(".txt"))
+            .filter(file => file.type === "file" && file.name.endsWith(".txt") && file.name.startsWith(sub))
             .map(file => file.name);
     }
 
     async function init() {
-        const files = await getFiles();
-    
-        const container = document.getElementById("fileList");
+        const files = await getFiles("STM");
+        files.forEach(createRow);        
+    }
 
-        files.forEach(file => {
+    init();
+
+    createRow=(file) => {
         
             const row = document.createElement("div");
             row.className = "file";
@@ -117,13 +120,7 @@
         
             container.appendChild(row);
         
-        });
-        
-    }
-
-    init();
-
-
+        }
 
 </script>
 
