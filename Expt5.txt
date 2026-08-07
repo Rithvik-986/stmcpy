@@ -1,0 +1,37 @@
+package com.test.selenium;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class Hero {
+
+	public static void main(String[] args) throws Exception{
+		
+		Connection con = DriverManager.getConnection("jdbc:h2:./StudentDB","sa","");
+		
+		Statement stmt = con.createStatement();
+		
+		stmt.execute("CREATE TABLE IF NOT EXISTS STUDENT(ID INT PRIMARY KEY, NAME VARCHAR(50), EMAIL VARCHAR(100))");
+		
+		stmt.execute("DELETE FROM STUDENT");
+		
+		stmt.executeUpdate("INSERT INTO STUDENT VALUES(1,'Rithvik','rithvik@gmail.com')");
+		
+		ResultSet rs = stmt.executeQuery("SELECT * FROM STUDENT WHERE ID=1");
+		
+		if(rs.next()) {
+			System.out.println("Record Exists");
+			System.out.println("ID: "+rs.getInt("ID"));
+			System.out.println("NAME: "+rs.getString("NAME"));
+			System.out.println("EMAIL: "+rs.getString("EMAIL"));
+			System.out.println("TEST : PASS");
+		}
+		else {
+			System.out.println("Record doesn't exists");
+			System.out.println("TEST: FAIL");
+			
+		}
+	}
+}
