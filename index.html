@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text File Copier</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 900px;
+        margin: 40px auto;
+        background: #f5f5f5;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+    }
+
+    .file {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        margin: 10px 0;
+        padding: 12px 18px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,.08);
+    }
+
+    button {
+        padding: 8px 18px;
+        border: none;
+        border-radius: 5px;
+        background: #1976d2;
+        color: white;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    button:hover {
+        background: #125aa0;
+    }
+
+    button.success {
+        background: #2e7d32;
+    }
+</style>
+</head>
+<body>
+
+<h1>Text File Copier</h1>
+
+<div id="fileList"></div>
+
+<script>
+
+const files = [
+    "prompt1.txt",
+    "prompt2.txt",
+    "prompt3.txt",
+    "notes.txt",
+    "example.txt"
+];
+
+const container = document.getElementById("fileList");
+
+files.forEach(file => {
+
+    const row = document.createElement("div");
+    row.className = "file";
+
+    const name = document.createElement("span");
+    name.textContent = file;
+
+    const button = document.createElement("button");
+    button.textContent = "Copy";
+
+    button.onclick = async () => {
+        try {
+            const response = await fetch(file);
+
+            if (!response.ok)
+                throw new Error("Unable to fetch file.");
+
+            const text = await response.text();
+
+            await navigator.clipboard.writeText(text);
+
+            button.textContent = "Copied!";
+            button.classList.add("success");
+
+            setTimeout(() => {
+                button.textContent = "Copy";
+                button.classList.remove("success");
+            }, 1500);
+
+        } catch (err) {
+            alert("Failed to copy " + file);
+            console.error(err);
+        }
+    };
+
+    row.appendChild(name);
+    row.appendChild(button);
+
+    container.appendChild(row);
+
+});
+
+</script>
+
+</body>
+</html>
