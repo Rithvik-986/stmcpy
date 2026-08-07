@@ -74,23 +74,26 @@
         const data = await response.json();
     
         return data
-            .filter(file => file.type === "file" && file.name.endsWith(".txt") && file.name.startsWith(sub))
+            .filter(file => file.type === "file" && file.name.endsWith(".txt"))
             .map(file => file.name);
     }
 
     async function init() {
-        const filesStm = await getFiles("STM");
-        filesStm.forEach(createRow);        
-        // container.appendChild(br);
+        const files = await getFiles();
+    
+        files
+            .filter(f => f.name.startsWith("STM"))
+            .forEach(f => createRow(f.name));
+    
         container.appendChild(hr);
-        // container.appendChild(br);
-        const filesSdc = await getFiles("SDC");
-        filesSdc.forEach(createRow);        
+    
+        files
+            .filter(f => f.name.startsWith("SDC"))
+            .forEach(f => createRow(f.name));
     }
-
     init();
 
-    createRow=(file) => {
+    function createRow(file){
         
             const row = document.createElement("div");
             row.className = "file";
