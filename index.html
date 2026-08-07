@@ -59,83 +59,130 @@
 <div id="fileList"></div>
 
 <script>
-    const owner = "Rithvik-986";
-    const repo = "stmcpy";
-    
-    const container = document.getElementById("fileList");
-    const hr = document.createElement("hr");
-    const br = document.createElement("br");
-    
-    async function getFiles() {
-        const response = await fetch(
-            `https://api.github.com/repos/${owner}/${repo}/contents/`
+const owner = "Rithvik-986";
+const repo = "stmcpy";
+
+const container = document.getElementById("fileList");
+
+// Cache for downloaded file contents
+const cache = {};
+
+// Fetch all txt files from the repository
+async function getFiles() {
+    const response = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/contents/`
+    );
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch repository contents.");
+    }
+
+    const data = await response.json();
+
+    return data
+        .filter(file =>
+            file.type === "file" &&
+            file.name.endsWith(".txt")
+        )
+        .sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, { numeric: true })
         );
-    
-        const data = await response.json();
-    
-        return data
-            .filter(file => file.type === "file" && file.name.endsWith(".txt"))
-            .map(file => file.name);
-    }
+}
 
-    async function init() {
-        const files = await getFiles();
-    
-        files
-            .filter(f => f.name.startsWith("STM"))
-            .forEach(f => createRow(f.name));
-    
-        container.appendChild(hr);
-    
-        files
-            .filter(f => f.name.startsWith("SDC"))
-            .forEach(f => createRow(f.name));
-    }
-    init();
+// Create a heading
+function addHeading(title) {
+    const h2 = document.createElement("h2");
+    h2.textContent = title;
+    container.appendChild(h2);
+}
 
-    function createRow(file){
-        
-            const row = document.createElement("div");
-            row.className = "file";
-        
-            const name = document.createElement("span");
-            name.textContent = file;
-        
-            const button = document.createElement("button");
-            button.textContent = "Copy";
-        
-            button.onclick = async () => {
-                try {
-                    const response = await fetch(file);
-        
-                    if (!response.ok)
-                        throw new Error("Unable to fetch file.");
-        
-                    const text = await response.text();
-        
-                    await navigator.clipboard.writeText(text);
-        
-                    button.textContent = "Copied!";
-                    button.classList.add("success");
-        
-                    setTimeout(() => {
-                        button.textContent = "Copy";
-                        button.classList.remove("success");
-                    }, 1500);
-        
-                } catch (err) {
-                    alert("Failed to copy " + file);
-                    console.error(err);
-                }
-            };
-        
-            row.appendChild(name);
-            row.appendChild(button);
-        
-            container.appendChild(row);
-        
+// Create one file row
+function createRow(file) {
+
+    const row = document.createElement("div");
+    row.className = "file";
+
+    const name = document.createElement("span");
+
+    // Remove .txt from display
+    name.textContent = file.name.replace(".txt", "");
+
+    const button = document.createElement("button");
+    button.textContent = "Copy";
+
+    button.onclick = async () => {
+
+        try {
+
+            // Download only once
+            if (!cache[file.name]) {
+
+                const response = await fetch(file.download_url);
+
+                if (!response.ok)
+                    throw new Error();
+
+                cache[file.name] = await response.text();
+            }
+
+            await navigator.clipboard.writeText(cache[file.name]);
+
+            button.textContent = "Copied!";
+            button.classList.add("success");
+
+            setTimeout(() => {
+                button.textContent = "Copy";
+                button.classList.remove("success");
+            }, 1500);
+
+        }
+        catch (err) {
+            console.error(err);
+            alert("Failed to copy " + file.name);
         }
 
+    };
+
+    row.appendChild(name);
+    row.appendChild(button);
+
+    container.appendChild(row);
+}
+
+// Initialize page
+async function init() {
+
+    try {
+
+        const files = await getFiles();
+
+        const stmFiles = files.filter(f => f.name.startsWith("STM"));
+        const sdcFiles = files.filter(f => f.name.startsWith("SDC"));
+
+        if (stmFiles.length) {
+            addHeading("STM");
+            stmFiles.forEach(createRow);
+        }
+
+        if (sdcFiles.length) {
+
+            const hr = document.createElement("hr");
+            container.appendChild(hr);
+
+            addHeading("SDC");
+            sdcFiles.forEach(createRow);
+
+        }
+
+    }
+    catch (err) {
+        console.error(err);
+        container.innerHTML = "<p>Unable to load files.</p>";
+    }
+
+}
+
+init();
 </script>
 
 </body>
