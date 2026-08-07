@@ -75,7 +75,7 @@
     async function init() {
         const filesStm = await getFiles("STM");
         filesStm.forEach(createRow);        
-        container.createElement("br");
+        container.appendChild(document.createElement("br"));
         const filesSdc = await getFiles("SDC");
         filesSdc.forEach(createRow);        
     }
